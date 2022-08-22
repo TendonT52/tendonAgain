@@ -1,10 +1,11 @@
 package services
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/TendonT52/tendon-api/controllers"
 	"github.com/dgrijalva/jwt-go/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type JwtServices struct {
@@ -18,38 +19,45 @@ func NewJwtServices(secret string) *JwtServices {
 }
 
 type authCustomClaims struct {
-	Name          string `json:"name" bson:"name"`
-	Surname       string `json:"surname" bson:"surname"`
-	Email         string `json:"email" bson:"email"`
-	Curriculum_id []int  `json:"curriculum" bson:"curriculum_id"`
+	Id           *primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	jwt.StandardClaims
 }
 
-func (service *JwtServices) GenerateToken(user User) string {
+func (service *JwtServices) GenerateAccessToken(user controllers.SignInUser) string {
 	claims := &authCustomClaims{
-		Email:     user.Email,
-		Name:      user.Name,
-		Surname:   user.Surname,
-		Curriculum_id: user.Curriculum_id,
+		Id:           user.Id,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: jwt.At(time.Now().Add(time.Hour)),
+			ExpiresAt: jwt.At(time.Now().Add(time.Minute*10)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString([]byte(service.secretKey))
-	if err != nil {
-		panic(err)
-	}
+	t, _ := token.SignedString([]byte(service.secretKey))
 	return t
 }
 
-func (service *JwtServices) ValidateToken(encodedToken string) (*jwt.Token, error) {
-	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
-		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
-			return nil, fmt.Errorf("Invalid token %s", token.Header["alg"])
-		}
-		return []byte(service.secretKey), nil
-	})
+func (service *JwtServices) GenerateRefreshToken(user controllers.SignInUser) string {
+	claims := &authCustomClaims{
+		Id:           user.Id,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: jwt.At(time.Now().Add(time.Hour*72)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
+	t, _ := token.SignedString([]byte(service.secretKey))
+	return t
+}
+//TODO write test for validateToken
+func (service *JwtServices) ValidateToken(encodedToken string) (*jwt.Token, error) {
+  token, err := jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
+     if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+        return nil, jwt.ErrSignatureInvalid
+     }
+     return []byte(service.secretKey), nil
+  })
+  if err != nil {
+     return nil, err
+  }
+  return token, nil
 }

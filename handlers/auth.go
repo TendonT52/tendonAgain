@@ -4,29 +4,68 @@ import (
 	"net/http"
 
 	"github.com/TendonT52/tendon-api/configs"
+	"github.com/TendonT52/tendon-api/controllers"
 	"github.com/TendonT52/tendon-api/services"
 	"github.com/gin-gonic/gin"
 )
 
-var app *configs.App
-
-func InitHadler(ap *configs.App) {
-	app = ap
+type AuthHandler struct {
+	app *configs.App
 }
 
-func HandleSignUp(ctx *gin.Context) {
-	user, err := services.CreateSingUpUser(ctx)
+func NewHandlerAuth(app *configs.App) *AuthHandler {
+	return &AuthHandler{
+		app: app,
+	}
+}
+
+func (handleAuth *AuthHandler) HandleSignUp(ctx *gin.Context) {
+	signUpUser := controllers.SignUpUser{}
+	err := ctx.BindJSON(&signUpUser)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "request in wrong format"})
 		return
 	}
-	user_found, ok := App.MongoDB.UserCollection.AddUser(*user)
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "email already be use"})
+	signUpUser.Password = services.HashPassword(signUpUser.Password)
+	signInUser, errWithCode := handleAuth.app.MongoDB.UserCollection.AddUser(&signUpUser)
+	if errWithCode != nil {
+		ctx.JSON(errWithCode.GetCode(), errWithCode.GetValue())
 		return
 	}
-	token := app.JwtSecret.GenerateToken(user_found)
-	ctx.JSON(http.StatusOK, gin.H{
-		"token": token,
-	})
+	ctx.JSON(
+		http.StatusAccepted,
+		gin.H{
+			"name":    signUpUser.Name,
+			"surname": signUpUser.Surname,
+			"email":   signUpUser.Email,
+			"token":   handleAuth.app.JwtSecret.GenerateAccessToken(*signInUser),
+		},
+	)
+}
+
+func (handleAuth *AuthHandler) HandleSignIn(ctx *gin.Context) {
+	signUpUser := controllers.SignInUser{}
+	err := ctx.BindJSON(&signUpUser)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "request in wrong format"})
+		return
+	}
+	signInUser, errWithCode := handleAuth.app.MongoDB.UserCollection.GetUserByEmail(&signUpUser)
+	if errWithCode != nil {
+			ctx.JSON(http.StatusNotFound, errWithCode.GetValue())
+			return
+	}
+	if !services.CheckPasswordHash(signUpUser.Password, signInUser.Password) {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "email or password is incorrect"})
+		return
+	}
+	ctx.JSON(
+		http.StatusAccepted,
+		gin.H{
+			"name":    signInUser.Name,
+			"surname": signInUser.Surname,
+			"email":   signInUser.Email,
+			"token":   handleAuth.app.JwtSecret.GenerateAccessToken(*signInUser),
+		},
+	)
 }

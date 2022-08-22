@@ -1,8 +1,7 @@
-package drivers
+package models
 
 import (
 	"context"
-	"log"
 	"time"
 	
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,41 +15,41 @@ type DB struct {
 	UserCollection *UserCollection
 }
 
-func NewMongoDB(dbName string, dsn string) *DB {
-	client := ConnectMongo(dsn)
+func NewMongoDB(dbName string, userCollectionName string, dsn string) (*DB, error) {
+	client, err := ConnectMongo(dsn)
+	if err != nil {
+		return nil, err
+	}
 	db := DB{
 		DbName: dbName,
 		Client: client,
 	}
-	db.TestMongo()
-	return &db
+	db.UserCollection = NewUserCollection(userCollectionName, &db)
+	return &db, nil
 }
 
-func ConnectMongo(dsn string) *mongo.Client {
-	log.Println("Connecting to database...")
+func ConnectMongo(dsn string) (*mongo.Client, error) {
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dsn))
 	if err != nil {
-		log.Fatalf("Error while connecting %s", err)
+		return nil, err
 	}
-	log.Println("Connected")
-	return client
+	return client, nil
 }
 
-func (client *DB)DisconnectMongo(){
-	log.Println("Disconnecting to database...")
+func (client *DB)DisconnectMongo() error {
 	if err := client.Client.Disconnect(context.TODO()); err != nil {
-			log.Fatalf("Error while disconnect %s", err)
+			return err
 		}
-	log.Println("Disconnected")
+	return nil
 }
 
-func (client *DB)TestMongo() {
+func (client *DB)TestMongo() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	err := client.Client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		log.Fatalf("Error while ping %s", err)
+		return err
 	}
-	log.Printf("Test mongo success")	
+	return nil
 }
 
