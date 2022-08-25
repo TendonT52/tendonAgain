@@ -15,6 +15,7 @@ const (
 	errorWhileAddUserTooDatabase
 	emailNotFound
 	idNotFound
+	idNotValid
 )
 
 var (
@@ -42,6 +43,11 @@ var (
 		Kind:  idNotFound,
 		Code:  http.StatusNotFound,
 		Value: gin.H{"message": "Id not found"},
+	}
+	IdNotValid = DBError{
+		Kind: idNotValid,
+		Code: http.StatusNotAcceptable,
+		Value: gin.H{"message": "Id not valid"},
 	}
 )
 

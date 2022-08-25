@@ -19,7 +19,7 @@ func NewJwtServices(secret string) *JwtServices {
 }
 
 type authCustomClaims struct {
-	Id           *primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Id           primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	jwt.StandardClaims
 }
 

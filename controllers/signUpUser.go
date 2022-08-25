@@ -8,7 +8,3 @@ type SignUpUser struct {
 	Email    string `json:"email" bson:"email"`
 	Password string `json:"password" bson:"password"`
 }
-
-func (signUpuser *SignUpUser) GetEmail() string {
-	return signUpuser.Email
-}

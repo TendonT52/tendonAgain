@@ -36,9 +36,9 @@ func TestGenerateToken(t *testing.T) {
 		return
 	}
 	singInUser := controllers.SignInUser{
-		Id:           &objId,
+		Id:           objId,
 		Email:        email,
-		CurriculumId: []int{},
+		CurriculumId: []primitive.ObjectID{},
 	}
 	tokenString := jwtServices.GenerateAccessToken(singInUser)
 	claims := jwt.MapClaims{}
@@ -64,9 +64,9 @@ func TestValidateToken(t *testing.T) {
 		return
 	}
 	singInUser := controllers.SignInUser{
-		Id:           &objId,
+		Id:           objId,
 		Email:        email,
-		CurriculumId: []int{},
+		CurriculumId: []primitive.ObjectID{},
 	}
 	tokenString := jwtServices.GenerateAccessToken(singInUser)
 	token, err := jwtServices.ValidateToken(tokenString)

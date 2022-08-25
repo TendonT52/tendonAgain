@@ -50,7 +50,7 @@ func (handleAuth *AuthHandler) HandleSignIn(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "request in wrong format"})
 		return
 	}
-	signInUser, errWithCode := handleAuth.app.MongoDB.UserCollection.GetUserByEmail(&signUpUser)
+	signInUser, errWithCode := handleAuth.app.MongoDB.UserCollection.GetUserByEmail(signUpUser.Email)
 	if errWithCode != nil {
 			ctx.JSON(http.StatusNotFound, errWithCode.GetValue())
 			return
