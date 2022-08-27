@@ -60,8 +60,8 @@ func TestHandlerSignUp(t *testing.T) {
 	r.POST("/signup", authHandler.HandleSignUp)
 	signUpUser := controllers.SignUpUser{
 		Email:   email,
-		Name:    name, 
-		Surname:  surname,
+		FirstName:    name, 
+		LastName:  surname,
 		Password:  password,
 	}
 	jsonValue, _ := json.Marshal(signUpUser)

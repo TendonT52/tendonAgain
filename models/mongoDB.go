@@ -13,9 +13,10 @@ type DB struct {
 	DbName string
 	Client *mongo.Client
 	UserCollection *UserCollection
+	JwtCollection *JwtCollection
 }
 
-func NewMongoDB(dbName string, userCollectionName string, dsn string) (*DB, error) {
+func NewMongoDB(dbName string, userCollectionName string, jwtCollectionName string,dsn string) (*DB, error) {
 	client, err := ConnectMongo(dsn)
 	if err != nil {
 		return nil, err
@@ -25,6 +26,7 @@ func NewMongoDB(dbName string, userCollectionName string, dsn string) (*DB, erro
 		Client: client,
 	}
 	db.UserCollection = NewUserCollection(userCollectionName, &db)
+	db.JwtCollection = NewJwtCollection(jwtCollectionName, &db)
 	return &db, nil
 }
 

@@ -22,7 +22,7 @@ func setUp() {
 	if err != nil {
 		log.Fatalf("Error loading .env file %s", err.Error())
 	}
-	db, err = NewMongoDB(os.Getenv("DB_NAME"), os.Getenv("USER_COLLECTION_NAME"), os.Getenv("MONGO_DNS"))
+	db, err = NewMongoDB(os.Getenv("DB_NAME"), os.Getenv("USER_COLLECTION_NAME"), os.Getenv("JWT_COLLECTION_NAME"), os.Getenv("MONGO_DNS"))
 	if err != nil {
 		log.Fatalf("Error to new mongodb instant, %s", err.Error())
 	}

@@ -1,11 +1,13 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/TendonT52/tendon-api/controllers"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestGetUserByEmail(t *testing.T) {
@@ -14,7 +16,7 @@ func TestGetUserByEmail(t *testing.T) {
 		name          string
 		surname       string
 		email         string
-		errorWithCode errorWithCode
+		errorWithCode error
 	}{
 		{
 			id:            "6303306a448342f4bb47fb2e",
@@ -25,28 +27,28 @@ func TestGetUserByEmail(t *testing.T) {
 		},
 		{
 			email:         "wrong@email.com",
-			errorWithCode: &EmailNotFound,
+			errorWithCode:  EmailNotFound,
 		},
 	}
 	for _, tc := range testCase {
 		result, errWithCode := db.UserCollection.GetUserByEmail(tc.email)
 		if errWithCode != nil {
-			if errWithCode.GetKind() != tc.errorWithCode.GetKind() {
+			if !errors.Is(errWithCode, tc.errorWithCode) {
 				t.Errorf("expect %v got %v", tc.errorWithCode, errWithCode)
 				return
 			}
 			return 
 		}
-		if result.Id.Hex() != tc.id  {
-			t.Errorf("expect %s got %s", tc.id, result.Id.Hex())
+		if result.UserId.Hex() != tc.id  {
+			t.Errorf("expect %s got %s", tc.id, result.UserId.Hex())
 			return
 		}
-		if result.Name != tc.name {
-			t.Errorf("expect %s got %s", tc.name, result.Name)
+		if result.Firstname != tc.name {
+			t.Errorf("expect %s got %s", tc.name, result.Firstname)
 			return
 		}
-		if result.Surname != tc.surname {
-			t.Errorf("expect %s got %s", tc.surname, result.Surname)
+		if result.Lastname != tc.surname {
+			t.Errorf("expect %s got %s", tc.surname, result.Lastname)
 			return
 		}
 
@@ -60,7 +62,7 @@ func TestGetUserById(t *testing.T) {
 		name          string
 		surname       string
 		email         string
-		errorWithCode errorWithCode
+		errorWithCode error
 	}{
 		{
 			id:            "6303306a448342f4bb47fb2e",
@@ -74,31 +76,36 @@ func TestGetUserById(t *testing.T) {
 			name:          "nametest",
 			surname:       "surnametest",
 			email:         "test@test.com",
-			errorWithCode: &IdNotFound,
+			errorWithCode: IdNotFound,
 		},
 	}
 
 	for _, tc := range testCase {
 		t.Run("Test Found Id", func(t *testing.T) {
-			result, errWithCode := db.UserCollection.GetUserById(tc.id)
+			objId, err := primitive.ObjectIDFromHex(tc.id)
+			if err != nil {
+				t.Errorf("error while create object id %s", err.Error())
+				return
+			}
+			result, errWithCode := db.UserCollection.GetUserById(objId)
 			if errWithCode != nil {
-				if errWithCode.GetKind() != tc.errorWithCode.GetKind() {
+				if !errors.Is(errWithCode, tc.errorWithCode){
 					t.Errorf("expect %v got %v", tc.errorWithCode, errWithCode)
 					return
 				}
 				return
 			}
 
-			if result.Id.Hex() != tc.id {
-				t.Errorf("expect %s got %s", tc.id, result.Id.Hex())
+			if result.UserId.Hex() != tc.id {
+				t.Errorf("expect %s got %s", tc.id, result.UserId.Hex())
 				return
 			}
-			if result.Name != tc.name {
-				t.Errorf("expect %s got %s", tc.name, result.Name)
+			if result.Firstname != tc.name {
+				t.Errorf("expect %s got %s", tc.name, result.Firstname)
 				return
 			}
-			if result.Surname != tc.surname {
-				t.Errorf("expect %s got %s", tc.surname, result.Surname)
+			if result.Lastname != tc.surname {
+				t.Errorf("expect %s got %s", tc.surname, result.Lastname)
 				return
 			}
 			if result.Email != tc.email {
@@ -112,8 +119,8 @@ func TestGetUserById(t *testing.T) {
 func TestAddUser(t *testing.T) {
 	signUpUser := controllers.SignUpUser{
 		Email:    fmt.Sprintf("test%d@test.com", time.Now().Unix()),
-		Name:     fmt.Sprintf("name%d", time.Now().Unix()),
-		Surname:  fmt.Sprintf("surname%d", time.Now().Unix()),
+		FirstName:     fmt.Sprintf("name%d", time.Now().Unix()),
+		LastName:  fmt.Sprintf("surname%d", time.Now().Unix()),
 		Password: fmt.Sprintf("%d", time.Now().Unix()),
 	}
 	_, err := db.UserCollection.AddUser(&signUpUser)
