@@ -68,8 +68,8 @@ func (userCollection *UserCollection) AddUser(signUpUser *controllers.SignUpUser
 	}
 
 	signInUser := controllers.SignInUser{}
-	signInUser.Firstname = signUpUser.FirstName
-	signInUser.Lastname = signUpUser.LastName
+	signInUser.FirstName = signUpUser.FirstName
+	signInUser.LastName = signUpUser.LastName
 	signInUser.Email = signUpUser.Email
 	signInUser.Password = services.HashPassword(signUpUser.Password)
 	signInUser.SubCurriculum = []controllers.SubCurriculum{}

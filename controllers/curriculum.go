@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -15,6 +17,9 @@ type Curriculum struct {
 	CurriculumName  string             `json:"curriculumName " bson:"curriculum_name"`
 	SubLearningNode []SubLearningNode  `json:"subLearningNode" bson:"sub_learning_node"`
 	Access          string             `json:"access" bson:"access"`
+	CreateBy        primitive.ObjectID `json:"createBy" bson:"create_by"`
+	CreatedAt       time.Time          `json:"createdAt" bson:"created_at"`
+	UpdatedAt       time.Time          `json:"updatedAt" bson:"updated_at"`
 }
 
 type SubLearningNode struct {

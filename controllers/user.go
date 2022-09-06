@@ -20,8 +20,8 @@ type SignUpUser struct {
 
 type SignInUser struct {
 	UserId        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Firstname     string             `json:"name" bson:"name"`
-	Lastname      string             `json:"surname" bson:"surname"`
+	FirstName     string             `json:"name" bson:"name"`
+	LastName      string             `json:"surname" bson:"surname"`
 	Email         string             `json:"email" bson:"email"`
 	Password      string             `json:"password" bson:"password"`
 	Role          string             `json:"role" bson:"role"`

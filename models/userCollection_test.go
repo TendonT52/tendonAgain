@@ -43,12 +43,12 @@ func TestGetUserByEmail(t *testing.T) {
 			t.Errorf("expect %s got %s", tc.id, result.UserId.Hex())
 			return
 		}
-		if result.Firstname != tc.name {
-			t.Errorf("expect %s got %s", tc.name, result.Firstname)
+		if result.FirstName != tc.name {
+			t.Errorf("expect %s got %s", tc.name, result.FirstName)
 			return
 		}
-		if result.Lastname != tc.surname {
-			t.Errorf("expect %s got %s", tc.surname, result.Lastname)
+		if result.LastName != tc.surname {
+			t.Errorf("expect %s got %s", tc.surname, result.LastName)
 			return
 		}
 
@@ -100,12 +100,12 @@ func TestGetUserById(t *testing.T) {
 				t.Errorf("expect %s got %s", tc.id, result.UserId.Hex())
 				return
 			}
-			if result.Firstname != tc.name {
-				t.Errorf("expect %s got %s", tc.name, result.Firstname)
+			if result.FirstName != tc.name {
+				t.Errorf("expect %s got %s", tc.name, result.FirstName)
 				return
 			}
-			if result.Lastname != tc.surname {
-				t.Errorf("expect %s got %s", tc.surname, result.Lastname)
+			if result.LastName != tc.surname {
+				t.Errorf("expect %s got %s", tc.surname, result.LastName)
 				return
 			}
 			if result.Email != tc.email {

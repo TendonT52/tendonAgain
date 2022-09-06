@@ -1,6 +1,10 @@
 package controllers
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 const (
 	Required   = "required"
@@ -18,6 +22,8 @@ type Node struct {
 	Type string
 	Name string
 	Data string
+	CreatedAt       time.Time          `json:"createdAt" bson:"created_at"`
+	UpdatedAt       time.Time          `json:"updatedAt" bson:"updated_at"`
 }
 
 type LearningNode struct {

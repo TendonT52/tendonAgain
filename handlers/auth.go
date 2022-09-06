@@ -28,21 +28,31 @@ func (handleAuth *AuthHandler) HandleSignUp(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "request in wrong format"})
 		return
 	}
-	signUpUser.Password = services.HashPassword(signUpUser.Password)
-	_, err = handleAuth.app.MongoDB.UserCollection.AddUser(&signUpUser)
+	signInUser, err := handleAuth.app.MongoDB.UserCollection.AddUser(&signUpUser)
 	if err != nil {
 		ctx.JSON(err.(error.ErrorWithCode).Code, err.(error.ErrorWithCode).Response)
 		return
 	}
+	ctx.SetCookie(
+		"token",
+		handleAuth.app.JwtSecret.GenerateAccessToken(signInUser.UserId.Hex(), "", time.Minute*15),
+		60*15,
+		"/auth",
+		"127.0.0.1",
+		false,
+		true,
+	)
 	ctx.JSON(
 		http.StatusAccepted,
 		gin.H{
-			"name":    signUpUser.FirstName,
-			"surname": signUpUser.LastName,
-			"email":   signUpUser.Email,
-			"token":   handleAuth.app.JwtSecret.GenerateAccessToken("", "",time.Minute*15),
+			"id" : signInUser.UserId,
+			"name":    signInUser.FirstName,
+			"surname": signInUser.LastName,
+			"email":   signInUser.Email,
+			"token":   handleAuth.app.JwtSecret.GenerateAccessToken("", "", time.Minute*15),
 		},
 	)
+
 }
 
 func (handleAuth *AuthHandler) HandleSignIn(ctx *gin.Context) {
@@ -54,20 +64,29 @@ func (handleAuth *AuthHandler) HandleSignIn(ctx *gin.Context) {
 	}
 	signInUser, err := handleAuth.app.MongoDB.UserCollection.GetUserByEmail(signUpUser.Email)
 	if err != nil {
-			ctx.JSON(http.StatusNotFound, err.(error.ErrorWithCode).Response)
-			return
+		ctx.JSON(http.StatusNotFound, err.(error.ErrorWithCode).Response)
+		return
 	}
 	if !services.CheckPasswordHash(signUpUser.Password, signInUser.Password) {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": "email or password is incorrect"})
 		return
 	}
+	ctx.SetCookie(
+		"token",
+		handleAuth.app.JwtSecret.GenerateAccessToken("", "", time.Minute*15),
+		60*15,
+		"/user",
+		"127.0.0.1",
+		false,
+		true,
+	)
 	ctx.JSON(
 		http.StatusAccepted,
 		gin.H{
-			"name":    signInUser.Firstname,
-			"surname": signInUser.Lastname,
+			"name":    signInUser.FirstName,
+			"surname": signInUser.LastName,
 			"email":   signInUser.Email,
-			"token":   handleAuth.app.JwtSecret.GenerateAccessToken("","",  time.Minute*15),
+			"token":   handleAuth.app.JwtSecret.GenerateAccessToken("", "", time.Minute*15),
 		},
 	)
 }

@@ -14,7 +14,7 @@ type App struct {
 }
 
 func NewApp() *App {
-	mongo, err := models.NewMongoDB(os.Getenv("DB_NAME"), os.Getenv("USER_COLLECTION_NAME"),os.Getenv("MONGO_DNS"))
+	mongo, err := models.NewMongoDB(os.Getenv("DB_NAME"), os.Getenv("USER_COLLECTION_NAME"), os.Getenv("JWT_COLLECTION_NAME"),os.Getenv("MONGO_DNS"))
 	if err != nil {
 		log.Fatal(err)
 	}
