@@ -32,7 +32,7 @@ type SignInUser struct {
 
 type SubCurriculum struct {
 	CurriculumId          primitive.ObjectID
-	SubCurriculum         string
+	Curriculum         string
 	CurriculumDescription string
 	ProGress              int
 }
