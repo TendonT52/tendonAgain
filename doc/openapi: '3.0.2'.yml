@@ -76,7 +76,7 @@ components:
                             minimum: 0
                             maximum: 100
                             example: 79
-        curriculums:
+        curriculum:
             type: object
             properties:
                 type:
@@ -184,7 +184,7 @@ components:
                             type: string
                             enum:
                                 - require
-                                - extension1
+                                - extension
                                 - optional
                         size:
                             type: number
@@ -313,7 +313,28 @@ paths:
                     $ref: "#/components/responses/notFoundError"
                 "406":
                     $ref: "#/components/responses/inputError"
-
+        delete:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    $ref: "#/components/responses/successAuth"
+                "406":
+                    description: wrong email or password
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: wrong email or password
     /api/user/sign-up:
         post:
             requestBody:
@@ -353,31 +374,6 @@ paths:
                 "406":
                     $ref: "#/components/responses/inputError"
 
-    /api/user:
-        delete:
-            security:
-                - bearerAuth: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                userId:
-                                    type: string
-            responses:
-                "200":
-                    $ref: "#/components/responses/successAuth"
-                "406":
-                    description: wrong email or password
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    message:
-                                        type: string
-                                        example: wrong email or password
 
     /api/user/sign-in:
         post:
@@ -478,18 +474,30 @@ paths:
 
     /api/curricula/{id}:
         get:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
                     description: success
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/curriculums"
+                                $ref: "#/components/schemas/curriculum"
                 "401":
                     $ref: "#/components/responses/unauthorizedError"
                 "404":
                     $ref: "#/components/responses/notFoundError"
         patch:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             requestBody:
                 content:
                     application/json:
@@ -518,6 +526,16 @@ paths:
                                     items:
                                         type: string
                                         example: learningNodeID
+            responses:
+                "200":
+                    description: success
+        delete:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
                     description: success
@@ -550,30 +568,29 @@ paths:
             responses:
                 "200":
                     description: Everything went fine
-        delete:
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                curriculumsId:
-                                    type: string
-            responses:
-                "200":
-                    description: success
 
     /api/learning-nodes/{id}:
         get:
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/learningNode"
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
-                    description: Everything went fine
+                    description: success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/learningNode"
         patch:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             requestBody:
                 content:
                     application/json:
@@ -619,6 +636,16 @@ paths:
             responses:
                 "200":
                     description: success
+        delete:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: success
     /api/learning-nodes:
         post:
             requestBody:
@@ -650,15 +677,15 @@ paths:
             responses:
                 "200":
                     description: Everything went fine
+
+    /api/nodes/{id}:
         delete:
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                learningNodeId:
-                                    type: string
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
                     description: success
@@ -691,21 +718,16 @@ paths:
             responses:
                 "200":
                     description: Everything went fine
-        delete:
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                nodeId:
-                                    type: string
-            responses:
-                "200":
-                    description: success
+
 
     /resources/video/{id}:
         get:
+            parameters:
+                    - name: id
+                      in: path
+                      required: true
+                      schema:
+                          type: string
             responses:
                 "200":
                     description: Everything went fine
@@ -730,6 +752,12 @@ paths:
 
     /resources/pdf/{id}:
         get:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
                     description: Everything went fine
@@ -754,6 +782,12 @@ paths:
 
     /resources/text/{id}:
         get:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
                     description: Everything went fine
@@ -778,6 +812,12 @@ paths:
 
     /resources/image/{id}:
         get:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200":
                     description: Everything went fine
@@ -802,6 +842,12 @@ paths:
                     description: Everything went fine
     /resources/sound/{id}:
         get:
+            parameters:
+                    - name: id
+                      in: path
+                      required: true
+                      schema:
+                          type: string
             responses:
                 "200":
                     description: Everything went fine
